@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import java.util.EmptyStackException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Stack;
@@ -13,14 +14,17 @@ import java.util.Stack;
 public class Calculator extends AppCompatActivity implements View.OnClickListener {
 
     private TextView inputBox;
-    private TextView output;
+    private TextView outputBox;
+    private boolean outputDisplayed;
     private StringBuilder displayText;
     private Set<String> operations;
+    private Set<String> functions;
     private boolean containsDecimal;
     private int numberSetLength;
     private int startPositionOfNumberSet;
     private boolean isNegative;
     private int negativeSignPos;
+    private int numberOfBrackets;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +54,7 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
         Button absoluteValue = (Button) findViewById(R.id.absolute_value);
         Button percent = (Button) findViewById(R.id.percent);
         Button oneOver = (Button) findViewById(R.id.one_over);
-        Button eulersNumber = (Button) findViewById(R.id.eulers);
+        Button eulersNumber = (Button) findViewById(R.id.eulers_number);
         Button pi = (Button) findViewById(R.id.pi);
         Button sin = (Button) findViewById(R.id.sin);
         Button tan = (Button) findViewById(R.id.tan);
@@ -100,7 +104,7 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
         rightBracket.setOnClickListener(this);
 
         inputBox = (TextView) findViewById(R.id.input);
-        output = (TextView) findViewById(R.id.output);
+        outputBox = (TextView) findViewById(R.id.output);
         displayText = new StringBuilder(inputBox.getText());
 
         operations = new HashSet<String>();
@@ -108,95 +112,176 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
         operations.add("−");
         operations.add("*");
         operations.add("/");
+
+        //might not need
+        functions = new HashSet<String>();
+        functions.add("sin");
+        functions.add("cos");
+        functions.add("tan");
+        functions.add("log");
+        functions.add("ln");
+        functions.add("sqroot");
+        functions.add("cuberoot");
+        functions.add("^");
+        functions.add("^2");
     }
 
     @Override
     public void onClick(View view) {
 
+        if(outputDisplayed) {
+            displayModifier("clear");
+            outputDisplayed = false;
+        }
+
         switch(view.getId()){
             case R.id.one:
-                formatForDisplay("1");
+                displayNumber("1");
                 break;
             case R.id.two:
-                formatForDisplay("2");
+                displayNumber("2");
                 break;
             case R.id.three:
-                formatForDisplay("3");
+                displayNumber("3");
                 break;
             case R.id.four:
-                formatForDisplay("4");
+                displayNumber("4");
                 break;
             case R.id.five:
-                formatForDisplay("5");
+                displayNumber("5");
                 break;
             case R.id.six:
-                formatForDisplay("6");
+                displayNumber("6");
                 break;
             case R.id.seven:
-                formatForDisplay("7");
+                displayNumber("7");
                 break;
             case R.id.eight:
-                formatForDisplay("8");
+                displayNumber("8");
                 break;
             case R.id.nine:
-                formatForDisplay("9");
+                displayNumber("9");
                 break;
             case R.id.zero:
-                formatForDisplay("0");
-                break;
-            case R.id.clear:
-                displayText.setLength(0);
-                inputBox.setText(displayText);
-                break;
-            case R.id.delete:
-                if(displayText.length() != 0)
-                    displayText.deleteCharAt(displayText.length()-1);
-                inputBox.setText(displayText);
+                displayNumber("0");
                 break;
             case R.id.add:
-                formatForDisplay("+");
+                displayOperation("+");
                 break;
             case R.id.subtract:
-                formatForDisplay("−");
+                displayOperation("−");
                 break;
             case R.id.multiply:
-                formatForDisplay("*");
+                displayOperation("*");
                 break;
             case R.id.divide:
-                formatForDisplay("/");
+                displayOperation("/");
+                break;
+            case R.id.clear:
+                displayModifier("clear");
+                break;
+            case R.id.delete:
+                displayModifier("del");
                 break;
             case R.id.negative:
-                formatForDisplay("-");
+                displayModifier("-");
                 break;
             case R.id.equal:
-                equals();
+                displayModifier("=");
                 break;
             case R.id.decimal:
-                formatForDisplay(".");
+                displayModifier(".");
+                break;
+            case R.id.left_bracket:
+                displayModifier("(");
+                break;
+            case R.id.right_bracket:
+                displayModifier(")");
+                break;
+            case R.id.absolute_value:
+                displayModifier("abs");
+                break;
+            case R.id.eulers_number:
+                displaySymbol("e");
+                break;
+            case R.id.pi:
+                displaySymbol("pi");
+                break;
+            case R.id.sin:
+                displayFunction("sin");
+                break;
+            case R.id.cos:
+                displayFunction("cos");
+                break;
+            case R.id.tan:
+                displayFunction("tan");
+                break;
+            case R.id.log:
+                displayFunction("log");
+                break;
+            case R.id.natural_log:
+                displayFunction("ln");
+                break;
+            case R.id.squareroot:
+                displayFunction("√");
+                break;
+            case R.id.cuberoot:
+                displayFunction("³√");
+                break;
+            case R.id.exponent:
+                displayFunction("^");
+                break;
+            case R.id.power_two:
+                displayFunction("^ 2");
+                break;
+            case R.id.percent:
+                //need to add
+                break;
+            case R.id.one_over:
+                //need to add
                 break;
         }
     }
 
-    //Maybe need to split method up into various things?
-    //seperate numbers and operations and "other"
-    //formatNumbers / formatOperations / formatModifiers / format functions
-    //possibly add a method that'll trim any white space when it displays it
-    public void formatForDisplay(String textToAdd){
+    public void displayNumber(String numberToAdd){
+        if(numberSetLength == 0){
+            startPositionOfNumberSet = displayText.length();
+        }
+        displayText.append(numberToAdd);
+        numberSetLength++;
+        displayFixedInputText();
+    }
 
-        if(operations.contains(textToAdd)){ //Could add in the brackets to this part to prevent repeating stuff or make a resetNumberSet method?
-            numberSetLength = 0;
-            containsDecimal = false;
-            isNegative = false;
-            negativeSignPos = 0;
-            startPositionOfNumberSet = 0;
+    public void displayFixedInputText(){
+        String trimmedDisplayText = displayText.toString().replaceAll(" ", "");
+        inputBox.setText(trimmedDisplayText);
+    }
 
-            if(displayText.length() == 0 ) //maybe a method to check if its an okay inputBox and checks for decimals before it and such
-                return;
-            else if(operations.contains(displayText.charAt(displayText.length() - 1)+""))
-                return;
-            else
-                displayText.append(" " + textToAdd + " ");
-        }else if(textToAdd.equals(".")){
+    public void displayOperation(String operationToAdd){
+        resetTrackers();
+        String trimmedDisplayText = displayText.toString().replaceAll(" ", ""); //need to fix/better solution
+
+        if(trimmedDisplayText.length() == 0)
+            return;
+        else if(operations.contains(trimmedDisplayText.charAt(trimmedDisplayText.length() - 1)+""))
+            return;
+        else
+            displayText.append(" " + operationToAdd + " ");
+
+        displayFixedInputText();
+    }
+
+    public void resetTrackers(){
+        numberSetLength = 0;
+        containsDecimal = false;
+        isNegative = false;
+        negativeSignPos = 0;
+        startPositionOfNumberSet = 0;
+    }
+
+    //maybe split up somehow
+    public void displayModifier(String modifierToAdd){
+        if(modifierToAdd.equals(".")){
             if(containsDecimal)
                 return;
             else if(numberSetLength == 0)
@@ -204,70 +289,120 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
             else
                 displayText.append(".");
             containsDecimal = true;
-        }else if(textToAdd.equals("-")){
+        }else if(modifierToAdd.equals("-")){
             if(isNegative){
                 isNegative = false;
                 displayText.deleteCharAt(negativeSignPos);
-            }else{
-                displayText.insert(startPositionOfNumberSet, "-"); //Add a negative sign infront of the numbers
+            }else{ //Add a negative sign infront of the numbers
+                displayText.insert(startPositionOfNumberSet, "-");
                 isNegative = true;
                 negativeSignPos = startPositionOfNumberSet;
             }
-        }else{
-            if(numberSetLength == 0){
-                startPositionOfNumberSet = displayText.length();
-            }
-            displayText.append(textToAdd);
-            numberSetLength++;
+        }else if(modifierToAdd.equals("del")){
+            if(displayText.length() != 0)
+                displayText.deleteCharAt(displayText.length()-1);
+        }else if(modifierToAdd.equals("clear")){
+            displayText.setLength(0);
+            outputBox.setText("");
+            resetTrackers();
+        }else if(modifierToAdd.equals("=")){
+            equals();
+        }else if(modifierToAdd.equals("(")){
+            formatSymbolsBrackets(modifierToAdd);
+            numberOfBrackets++;
+            resetTrackers();
+        }else if(modifierToAdd.equals(")") && numberOfBrackets != 0){
+            displayText.append(" " + modifierToAdd + " ");
+            numberOfBrackets--;
+            resetTrackers();
+        }else if(modifierToAdd.equals("abs")){
+            formatFunctionsAndAbsolute(modifierToAdd);
         }
 
-        String trimmedDisplayText = displayText.toString().replaceAll(" ", "");
-        inputBox.setText(trimmedDisplayText);
+        displayFixedInputText();
+    }
+
+    public void displaySymbol(String symbolToAdd){
+        if(symbolToAdd.equals("pi"))
+            formatSymbolsBrackets("π");
+        else //for eulers number. probably should be under functions
+            formatFunctionsAndAbsolute("e ^");
+
+        displayFixedInputText();
+    }
+
+    //need better name
+    public void formatSymbolsBrackets(String token){
+        if(numberSetLength == 0)
+            displayText.append(" " + token + " ");
+        else
+            displayText.append(" * " + token + " ");
+    }
+
+    //need better name
+    public void formatFunctionsAndAbsolute(String function){
+        if(function.equals("^ 2"))
+            displayText.append(" " + function + " ");
+        else if(numberSetLength == 0 || function.equals("^"))
+            displayText.append(" " + function + " ( ");
+        else
+            displayText.append(" * " + function + " ( ");
+
+        numberOfBrackets++;
+        resetTrackers();
+    }
+
+    public void displayFunction(String functionToAdd){
+        formatFunctionsAndAbsolute(functionToAdd);
+        displayFixedInputText();
     }
 
     public void equals(){
         InfixToPostfix convert = new InfixToPostfix(displayText.toString());
         String postfix = convert.convertToPostfix();
-        double total = calculate((postfix));
 
-        displayText.setLength(0);
-        //output.setText(postfix); //for testing
-        output.setText(total + "");
+        try {
+            outputDisplayed = true;
+            resetTrackers();
+            double total = calculate((postfix));
+            outputBox.setText(total + "");
+        }catch(EmptyStackException exception){
+            outputBox.setText("Invalid Format");
+        }
+
+        //outputBox.setText(postfix); //for testing
     }
 
-    public double calculate(String postfix) {
+    public double calculate(String postfix) throws EmptyStackException{
         double total;
         Stack<Double> stack = new Stack<Double>();
 
         for (String token : postfix.split(" ")) {
-            //if its a number push to the stack, if its an operator then pop two numbers off and then push to stack again
-            Double tokenValue = null;
+            //if its a number push to the stack, if its an operator then pop two numbers off
+            //apply the operation and then push to stack again
             double firstNum;
             double secondNum;
 
             try {
-                tokenValue = Double.parseDouble(token);
-            } catch (NumberFormatException error) {
-            }
-
-            if (tokenValue != null) {
                 stack.push(Double.parseDouble(token));
-            } else if (token.equals("*")) {
-                secondNum = stack.pop();
-                firstNum = stack.pop();
-                stack.push(firstNum * secondNum);
-            } else if (token.equals("/")){
-                secondNum = stack.pop();
-                firstNum = stack.pop();
-                stack.push(firstNum / secondNum);
-            }else if (token.equals("+")){
-                secondNum = stack.pop();
-                firstNum = stack.pop();
-            stack.push(firstNum + secondNum);
-            }else if(token.equals("−")) {
-                secondNum = stack.pop();
-                firstNum = stack.pop();
-                stack.push(firstNum - secondNum);
+            } catch (NumberFormatException error) {
+                if (token.equals("*")) {
+                    secondNum = stack.pop();
+                    firstNum = stack.pop();
+                    stack.push(firstNum * secondNum);
+                } else if (token.equals("/")){
+                    secondNum = stack.pop();
+                    firstNum = stack.pop();
+                    stack.push(firstNum / secondNum);
+                }else if (token.equals("+")){
+                    secondNum = stack.pop();
+                    firstNum = stack.pop();
+                    stack.push(firstNum + secondNum);
+                }else if(token.equals("−")) {
+                    secondNum = stack.pop();
+                    firstNum = stack.pop();
+                    stack.push(firstNum - secondNum);
+                }
             }
         }
         total = stack.pop();
