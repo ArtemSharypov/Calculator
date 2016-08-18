@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -7,265 +7,477 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
+    android:orientation="vertical"
     tools:context="com.artem.calculator.Calculator">
 
-    <TextView
-        android:layout_width="320dp"
-        android:layout_height="80dp"
-        android:id="@+id/display"
-        android:background="#ffffff"
-        android:gravity="center_vertical|right"
-        android:textSize="20sp"
-        android:paddingStart="5sp"
-        android:paddingEnd="5sp"
-        android:maxLines="3"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true" />
 
-    <Button
-        android:layout_width="72dp"
-        android:layout_height="72dp"
-        android:text="0"
-        android:id="@+id/zero"
-        android:textColor="#f9f9f9"
-        android:nestedScrollingEnabled="false"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="2dp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="2dp"
-        android:layout_marginBottom="2dp" />
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
-    <Button
-        android:layout_width="72dp"
-        android:layout_height="72dp"
-        android:text="1"
-        android:id="@+id/one"
-        android:textColor="#f9f9f9"
-        android:nestedScrollingEnabled="false"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="2dp"
-        android:layout_above="@+id/zero"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="2dp"
-        android:layout_marginBottom="2dp" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:id="@+id/input"
+                android:background="#ffffff"
+                android:textSize="20sp"
+                android:paddingStart="5sp"
+                android:paddingEnd="5sp"
+                android:maxLines="3"
+                android:layout_weight="1.75"/>
 
-    <Button
-        android:layout_width="72dp"
-        android:layout_height="72dp"
-        android:text="4"
-        android:id="@+id/four"
-        android:textColor="#f9f9f9"
-        android:nestedScrollingEnabled="false"
-        android:layout_above="@+id/one"
-        android:layout_alignParentLeft="true"
-        android:layout_marginTop="2dp"
-        android:layout_marginRight="2dp"
-        android:layout_marginBottom="2dp"
-        android:layout_marginLeft="8dp" />
+          <TextView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:id="@+id/output"
+                android:background="#ffffff"
+                android:textSize="20sp"
+                android:paddingStart="5sp"
+                android:paddingEnd="5sp"
+                android:maxLines="3"
+                android:layout_weight="1" />
+    </LinearLayout>
 
-    <Button
-        android:layout_width="72dp"
-        android:layout_height="72dp"
-        android:text="7"
-        android:id="@+id/seven"
-        android:textColor="#f9f9f9"
-        android:nestedScrollingEnabled="false"
-        android:layout_above="@+id/four"
-        android:layout_alignParentLeft="true"
-        android:layout_marginTop="2dp"
-        android:layout_marginRight="2dp"
-        android:layout_marginBottom="2dp"
-        android:layout_marginLeft="8dp" />
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_weight="4">
 
-    <Button
-        android:layout_width="72dp"
-        android:layout_height="72dp"
-        android:text="Clear"
-        android:id="@+id/clear"
-        android:textColor="#f9f9f9"
-        android:nestedScrollingEnabled="false"
-        android:layout_above="@+id/seven"
-        android:layout_alignParentLeft="true"
-        android:layout_marginTop="2dp"
-        android:layout_marginRight="2dp"
-        android:layout_marginBottom="2dp"
-        android:layout_marginLeft="8dp" />
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginTop="4dp">
 
-    <Button
-        android:layout_width="72dp"
-        android:layout_height="72dp"
-        android:text="."
-        android:id="@+id/decimal"
-        android:textColor="#f9f9f9"
-        android:nestedScrollingEnabled="false"
-        android:layout_alignParentBottom="true"
-        android:layout_toEndOf="@+id/zero"
-        android:layout_margin="2dp" />
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:text="Clear"
+                android:id="@+id/clear"
+                android:layout_gravity="bottom"
+                android:layout_weight="1"
+                android:background="#2196f3"
+                android:layout_margin="2dp" />
 
-    <Button
-        android:layout_width="72dp"
-        android:layout_height="72dp"
-        android:text="- / +"
-        android:id="@+id/negative"
-        android:textColor="#f9f9f9"
-        android:nestedScrollingEnabled="false"
-        android:layout_alignParentBottom="true"
-        android:layout_toEndOf="@+id/decimal"
-        android:layout_margin="2dp" />
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:id="@+id/eulers"
+                android:layout_gravity="bottom"
+                android:layout_weight="1"
+                android:background="#2196f3"
+                android:layout_margin="2dp"
+                android:text="e" />
 
-    <Button
-        android:layout_width="72dp"
-        android:layout_height="72dp"
-        android:text="2"
-        android:id="@+id/two"
-        android:textColor="#f9f9f9"
-        android:nestedScrollingEnabled="false"
-        android:layout_above="@+id/decimal"
-        android:layout_toStartOf="@+id/negative"
-        android:layout_margin="2dp" />
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:id="@+id/exponent"
+                android:layout_gravity="bottom"
+                android:layout_weight="1"
+                android:layout_margin="2dp"
+                android:background="#2196f3"
+                android:text="xⁿ" />
 
-    <Button
-        android:layout_width="72dp"
-        android:layout_height="72dp"
-        android:text="5"
-        android:id="@+id/five"
-        android:textColor="#f9f9f9"
-        android:nestedScrollingEnabled="false"
-        android:layout_marginLeft="2dp"
-        android:layout_marginRight="2dp"
-        android:layout_alignTop="@+id/four"
-        android:layout_toStartOf="@+id/negative" />
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:id="@+id/squareroot"
+                android:layout_gravity="bottom"
+                android:layout_weight="1"
+                android:background="#2196f3"
+                android:layout_margin="2dp"
+                android:text="√" />
 
-    <Button
-        android:layout_width="72dp"
-        android:layout_height="72dp"
-        android:text="8"
-        android:id="@+id/eight"
-        android:textColor="#f9f9f9"
-        android:nestedScrollingEnabled="false"
-        android:layout_marginLeft="2dp"
-        android:layout_marginRight="2dp"
-        android:layout_alignTop="@+id/seven"
-        android:layout_toStartOf="@+id/negative" />
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:id="@+id/log"
+                android:layout_gravity="bottom"
+                android:layout_weight="1"
+                android:layout_margin="2dp"
+                android:background="#2196f3"
+                android:text="Log" />
 
-    <Button
-        android:layout_width="72dp"
-        android:layout_height="72dp"
-        android:text="3"
-        android:id="@+id/three"
-        android:textColor="#f9f9f9"
-        android:nestedScrollingEnabled="false"
-        android:layout_above="@+id/decimal"
-        android:layout_toEndOf="@+id/two"
-        android:layout_margin="2dp" />
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:text="("
+                android:id="@+id/left_bracket"
+                android:layout_gravity="bottom"
+                android:layout_weight="1"
+                android:background="#2196f3"
+                android:layout_margin="2dp" />
+        </LinearLayout>
 
-    <Button
-        android:layout_width="72dp"
-        android:layout_height="72dp"
-        android:text="="
-        android:id="@+id/equal"
-        android:textColor="#f9f9f9"
-        android:nestedScrollingEnabled="false"
-        android:layout_marginLeft="2dp"
-        android:layout_marginRight="2dp"
-        android:layout_alignBottom="@+id/negative"
-        android:layout_toEndOf="@+id/negative" />
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginTop="4dp">
 
-    <Button
-        android:layout_width="72dp"
-        android:layout_height="72dp"
-        android:text="+"
-        android:id="@+id/add"
-        android:textColor="#f9f9f9"
-        android:nestedScrollingEnabled="false"
-        android:layout_above="@+id/negative"
-        android:layout_toEndOf="@+id/three"
-        android:layout_margin="2dp" />
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:id="@+id/absolute_value"
+                android:layout_gravity="bottom"
+                android:layout_weight="1"
+                android:background="#2196f3"
+                android:layout_margin="2dp"
+                android:text="|x|" />
 
-    <Button
-        android:layout_width="72dp"
-        android:layout_height="72dp"
-        android:text="6"
-        android:id="@+id/six"
-        android:textColor="#f9f9f9"
-        android:nestedScrollingEnabled="false"
-        android:layout_marginLeft="2dp"
-        android:layout_marginRight="2dp"
-        android:layout_alignTop="@+id/five"
-        android:layout_toStartOf="@+id/add" />
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:id="@+id/pi"
+                android:layout_gravity="bottom"
+                android:layout_weight="1"
+                android:background="#2196f3"
+                android:layout_margin="2dp"
+                android:text="π" />
 
-    <Button
-        android:layout_width="72dp"
-        android:layout_height="72dp"
-        android:text="−"
-        android:id="@+id/subtract"
-        android:textColor="#f9f9f9"
-        android:nestedScrollingEnabled="false"
-        android:layout_marginLeft="2dp"
-        android:layout_marginRight="2dp"
-        android:layout_alignBottom="@+id/six"
-        android:layout_toEndOf="@+id/six"
-        android:layout_marginTop="2dp" />
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:id="@+id/power_two"
+                android:layout_gravity="bottom"
+                android:layout_weight="1"
+                android:layout_margin="2dp"
+                android:background="#2196f3"
+                android:text="x²" />
 
-    <Button
-        android:layout_width="72dp"
-        android:layout_height="72dp"
-        android:text="9"
-        android:id="@+id/nine"
-        android:textColor="#f9f9f9"
-        android:nestedScrollingEnabled="false"
-        android:layout_marginLeft="2dp"
-        android:layout_marginRight="2dp"
-        android:layout_above="@+id/four"
-        android:layout_toStartOf="@+id/subtract"
-        android:layout_margin="2dp" />
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:id="@+id/cuberoot"
+                android:layout_gravity="bottom"
+                android:layout_weight="1"
+                android:background="#2196f3"
+                android:layout_margin="2dp"
+                android:text="³√x " />
 
-    <Button
-        android:layout_width="72dp"
-        android:layout_height="72dp"
-        android:text="^"
-        android:id="@+id/exponent"
-        android:textColor="#f9f9f9"
-        android:nestedScrollingEnabled="false"
-        android:layout_marginLeft="2dp"
-        android:layout_marginRight="2dp"
-        android:layout_alignTop="@+id/clear"
-        android:layout_toStartOf="@+id/nine" />
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:id="@+id/natural_log"
+                android:layout_gravity="bottom"
+                android:layout_weight="1"
+                android:layout_margin="2dp"
+                android:background="#2196f3"
+                android:text="Ln" />
 
-    <Button
-        android:layout_width="72dp"
-        android:layout_height="72dp"
-        android:text="*"
-        android:id="@+id/multiply"
-        android:textColor="#f9f9f9"
-        android:nestedScrollingEnabled="false"
-        android:layout_toEndOf="@+id/nine"
-        android:layout_margin="2dp"
-        android:layout_above="@+id/subtract" />
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:text=")"
+                android:id="@+id/right_bracket"
+                android:layout_gravity="bottom"
+                android:layout_weight="1"
+                android:background="#2196f3"
+                android:layout_margin="2dp" />
+        </LinearLayout>
 
-    <Button
-        android:layout_width="72dp"
-        android:layout_height="72dp"
-        android:text="/"
-        android:id="@+id/divide"
-        android:textColor="#f9f9f9"
-        android:nestedScrollingEnabled="false"
-        android:layout_marginLeft="2dp"
-        android:layout_marginRight="2dp"
-        android:layout_alignBottom="@+id/exponent"
-        android:layout_toEndOf="@+id/nine" />
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginTop="4dp">
 
-    <Button
-        android:layout_width="72dp"
-        android:layout_height="72dp"
-        android:text="Del"
-        android:id="@+id/delete"
-        android:textColor="#f9f9f9"
-        android:nestedScrollingEnabled="false"
-        android:layout_above="@+id/nine"
-        android:layout_toStartOf="@+id/divide"
-        android:layout_margin="2dp"
-        android:layout_alignParentStart="false" />
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:text="%"
+                android:id="@+id/percent"
+                android:layout_gravity="bottom"
+                android:layout_weight="1"
+                android:background="#2196f3"
+                android:layout_margin="2dp" />
 
-</RelativeLayout>
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:text="sin"
+                android:id="@+id/sin"
+                android:layout_gravity="bottom"
+                android:layout_weight="1"
+                android:background="#2196f3"
+                android:layout_margin="2dp" />
+
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:text="7"
+                android:id="@+id/seven"
+                android:layout_gravity="bottom"
+                android:layout_weight="1"
+                android:layout_margin="2dp"
+                android:background="#2196f3" />
+
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:text="4"
+                android:id="@+id/four"
+                android:layout_gravity="bottom"
+                android:layout_weight="1"
+                android:background="#2196f3"
+                android:layout_margin="2dp" />
+
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:text="1"
+                android:id="@+id/one"
+                android:layout_gravity="bottom"
+                android:layout_weight="1"
+                android:layout_margin="2dp"
+                android:background="#2196f3" />
+
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:text="0"
+                android:id="@+id/zero"
+                android:layout_gravity="bottom"
+                android:layout_weight="1"
+                android:background="#2196f3"
+                android:layout_margin="2dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginTop="4dp">
+
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:text="del"
+                android:id="@+id/delete"
+                android:layout_gravity="bottom"
+                android:layout_weight="1"
+                android:background="#2196f3"
+                android:layout_margin="2dp" />
+
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:text="cos"
+                android:id="@+id/cos"
+                android:layout_gravity="bottom"
+                android:layout_weight="1"
+                android:background="#2196f3"
+                android:layout_margin="2dp" />
+
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:text="8"
+                android:id="@+id/eight"
+                android:layout_gravity="bottom"
+                android:layout_weight="1"
+                android:layout_margin="2dp"
+                android:background="#2196f3" />
+
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:text="5"
+                android:id="@+id/five"
+                android:layout_gravity="bottom"
+                android:layout_weight="1"
+                android:background="#2196f3"
+                android:layout_margin="2dp" />
+
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:text="2"
+                android:id="@+id/two"
+                android:layout_gravity="bottom"
+                android:layout_weight="1"
+                android:layout_margin="2dp"
+                android:background="#2196f3" />
+
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:text="."
+                android:id="@+id/decimal"
+                android:layout_gravity="bottom"
+                android:layout_weight="1"
+                android:background="#2196f3"
+                android:layout_margin="2dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginTop="4dp">
+
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:text="1 / X"
+                android:id="@+id/one_over"
+                android:layout_gravity="bottom"
+                android:layout_weight="1"
+                android:background="#2196f3"
+                android:layout_margin="2dp" />
+
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:text="tan"
+                android:id="@+id/tan"
+                android:layout_gravity="bottom"
+                android:layout_weight="1"
+                android:background="#2196f3"
+                android:layout_margin="2dp" />
+
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:text="9"
+                android:id="@+id/nine"
+                android:layout_gravity="bottom"
+                android:layout_weight="1"
+                android:layout_margin="2dp"
+                android:background="#2196f3" />
+
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:text="6"
+                android:id="@+id/six"
+                android:layout_gravity="bottom"
+                android:layout_weight="1"
+                android:background="#2196f3"
+                android:layout_margin="2dp" />
+
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:text="3"
+                android:id="@+id/three"
+                android:layout_gravity="bottom"
+                android:layout_weight="1"
+                android:layout_margin="2dp"
+                android:background="#2196f3" />
+
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:text="- / +"
+                android:id="@+id/negative"
+                android:layout_gravity="bottom"
+                android:layout_weight="1"
+                android:background="#2196f3"
+                android:layout_margin="2dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginTop="4dp">
+
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:text="/"
+                android:id="@+id/divide"
+                android:layout_gravity="bottom"
+                android:layout_weight="1"
+                android:background="#2196f3"
+                android:layout_margin="2dp" />
+
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:text="*"
+                android:id="@+id/multiply"
+                android:layout_gravity="bottom"
+                android:layout_weight="1"
+                android:background="#2196f3"
+                android:layout_margin="2dp" />
+
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:text="−"
+                android:id="@+id/subtract"
+                android:layout_gravity="bottom"
+                android:layout_weight="1"
+                android:layout_margin="2dp"
+                android:background="#2196f3" />
+
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:text="+"
+                android:id="@+id/add"
+                android:layout_gravity="bottom"
+                android:layout_weight="1"
+                android:background="#2196f3"
+                android:layout_margin="2dp" />
+
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:text="="
+                android:id="@+id/equal"
+                android:layout_gravity="bottom"
+                android:layout_weight="2.05"
+                android:background="#2196f3"
+                android:layout_margin="2dp" />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

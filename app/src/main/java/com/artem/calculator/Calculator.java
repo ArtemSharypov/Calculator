@@ -12,7 +12,8 @@ import java.util.Stack;
 
 public class Calculator extends AppCompatActivity implements View.OnClickListener {
 
-    private TextView display;
+    private TextView inputBox;
+    private TextView output;
     private StringBuilder displayText;
     private Set<String> operations;
     private boolean containsDecimal;
@@ -45,6 +46,22 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
         Button negative = (Button) findViewById(R.id.negative);
         Button equal = (Button) findViewById(R.id.equal);
         Button decimal = (Button) findViewById(R.id.decimal);
+        Button powerOfTwo = (Button) findViewById(R.id.power_two);
+        Button absoluteValue = (Button) findViewById(R.id.absolute_value);
+        Button percent = (Button) findViewById(R.id.percent);
+        Button oneOver = (Button) findViewById(R.id.one_over);
+        Button eulersNumber = (Button) findViewById(R.id.eulers);
+        Button pi = (Button) findViewById(R.id.pi);
+        Button sin = (Button) findViewById(R.id.sin);
+        Button tan = (Button) findViewById(R.id.tan);
+        Button cos = (Button) findViewById(R.id.cos);
+        Button exponent = (Button) findViewById(R.id.exponent);
+        Button squareroot = (Button) findViewById(R.id.squareroot);
+        Button cuberoot = (Button) findViewById(R.id.cuberoot);
+        Button log = (Button) findViewById(R.id.log);
+        Button naturalLog = (Button) findViewById(R.id.natural_log);
+        Button leftBracket = (Button) findViewById(R.id.left_bracket);
+        Button rightBracket = (Button) findViewById(R.id.right_bracket);
 
         one.setOnClickListener(this);
         two.setOnClickListener(this);
@@ -65,9 +82,26 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
         negative.setOnClickListener(this);
         equal.setOnClickListener(this);
         decimal.setOnClickListener(this);
+        powerOfTwo.setOnClickListener(this);
+        absoluteValue.setOnClickListener(this);
+        percent.setOnClickListener(this);
+        oneOver.setOnClickListener(this);
+        eulersNumber.setOnClickListener(this);
+        pi.setOnClickListener(this);
+        sin.setOnClickListener(this);
+        cos.setOnClickListener(this);
+        tan.setOnClickListener(this);
+        exponent.setOnClickListener(this);
+        squareroot.setOnClickListener(this);
+        cuberoot.setOnClickListener(this);
+        log.setOnClickListener(this);
+        naturalLog.setOnClickListener(this);
+        leftBracket.setOnClickListener(this);
+        rightBracket.setOnClickListener(this);
 
-        display = (TextView) findViewById(R.id.display);
-        displayText = new StringBuilder(display.getText());
+        inputBox = (TextView) findViewById(R.id.input);
+        output = (TextView) findViewById(R.id.output);
+        displayText = new StringBuilder(inputBox.getText());
 
         operations = new HashSet<String>();
         operations.add("+");
@@ -112,12 +146,12 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
                 break;
             case R.id.clear:
                 displayText.setLength(0);
-                display.setText(displayText);
+                inputBox.setText(displayText);
                 break;
             case R.id.delete:
                 if(displayText.length() != 0)
                     displayText.deleteCharAt(displayText.length()-1);
-                display.setText(displayText);
+                inputBox.setText(displayText);
                 break;
             case R.id.add:
                 formatForDisplay("+");
@@ -156,7 +190,7 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
             negativeSignPos = 0;
             startPositionOfNumberSet = 0;
 
-            if(displayText.length() == 0 ) //maybe a method to check if its an okay input and checks for decimals before it and such
+            if(displayText.length() == 0 ) //maybe a method to check if its an okay inputBox and checks for decimals before it and such
                 return;
             else if(operations.contains(displayText.charAt(displayText.length() - 1)+""))
                 return;
@@ -188,7 +222,7 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
         }
 
         String trimmedDisplayText = displayText.toString().replaceAll(" ", "");
-        display.setText(trimmedDisplayText);
+        inputBox.setText(trimmedDisplayText);
     }
 
     public void equals(){
@@ -197,8 +231,8 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
         double total = calculate((postfix));
 
         displayText.setLength(0);
-        //display.setText(postfix); //for testing
-        display.setText(total + "");
+        //output.setText(postfix); //for testing
+        output.setText(total + "");
     }
 
     public double calculate(String postfix) {
