@@ -120,10 +120,9 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
         functions.add("tan");
         functions.add("log");
         functions.add("ln");
-        functions.add("sqroot");
-        functions.add("cuberoot");
+        functions.add("√");
+        functions.add("³√");
         functions.add("^");
-        functions.add("^2");
     }
 
     @Override
@@ -205,7 +204,7 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
                 displaySymbol("e");
                 break;
             case R.id.pi:
-                displaySymbol("pi");
+                displaySymbol("π");
                 break;
             case R.id.sin:
                 displayFunction("sin");
@@ -236,9 +235,18 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
                 break;
             case R.id.percent:
                 //need to add
+                displayText.append(" % ");
+                displayFixedInputText();
                 break;
             case R.id.one_over:
                 //need to add
+                if(numberSetLength == 0)
+                    displayText.append(" 1 / ( ");
+                else
+                    displayText.append(" * 1 / ( ");
+                numberOfBrackets++;
+                resetTrackers();
+                displayFixedInputText();
                 break;
         }
     }
@@ -305,6 +313,7 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
             displayText.setLength(0);
             outputBox.setText("");
             resetTrackers();
+            numberOfBrackets = 0;
         }else if(modifierToAdd.equals("=")){
             equals();
         }else if(modifierToAdd.equals("(")){
@@ -323,11 +332,16 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
     }
 
     public void displaySymbol(String symbolToAdd){
-        if(symbolToAdd.equals("pi"))
-            formatSymbolsBrackets("π");
-        else //for eulers number. probably should be under functions
-            formatFunctionsAndAbsolute("e ^");
-
+        if(symbolToAdd.equals("π")){
+            formatSymbolsBrackets(symbolToAdd);
+        }else {//for eulers number. probably should be under functions
+            //formatFunctionsAndAbsolute("e ^");
+            if(numberSetLength == 0)
+                displayText.append("e^ ( ");
+            else
+                displayText.append(" * e^ ( ");
+            numberOfBrackets++;
+        }
         displayFixedInputText();
     }
 
@@ -341,14 +355,15 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
 
     //need better name
     public void formatFunctionsAndAbsolute(String function){
-        if(function.equals("^ 2"))
+        if(function.equals("^ 2")) {
             displayText.append(" " + function + " ");
-        else if(numberSetLength == 0 || function.equals("^"))
+        }else if(numberSetLength == 0 || function.equals("^")) {
             displayText.append(" " + function + " ( ");
-        else
+            numberOfBrackets++;
+        }else {
             displayText.append(" * " + function + " ( ");
-
-        numberOfBrackets++;
+            numberOfBrackets++;
+        }
         resetTrackers();
     }
 
@@ -358,6 +373,11 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
     }
 
     public void equals(){
+        while(numberOfBrackets > 0) {
+            displayText.append(" ) ");
+            numberOfBrackets--;
+        }
+
         InfixToPostfix convert = new InfixToPostfix(displayText.toString());
         String postfix = convert.convertToPostfix();
 
@@ -390,18 +410,42 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
                     secondNum = stack.pop();
                     firstNum = stack.pop();
                     stack.push(firstNum * secondNum);
-                } else if (token.equals("/")){
+                } else if (token.equals("/")) {
                     secondNum = stack.pop();
                     firstNum = stack.pop();
                     stack.push(firstNum / secondNum);
-                }else if (token.equals("+")){
+                } else if (token.equals("+")) {
                     secondNum = stack.pop();
                     firstNum = stack.pop();
                     stack.push(firstNum + secondNum);
-                }else if(token.equals("−")) {
+                } else if (token.equals("−")) {
                     secondNum = stack.pop();
                     firstNum = stack.pop();
                     stack.push(firstNum - secondNum);
+                } else if(token.equals("^")){
+                    secondNum = stack.pop();
+                    firstNum = stack.pop();
+                    stack.push(Math.pow(firstNum, secondNum));
+                }else if(token.equals("sin")){
+                    stack.push(Math.sin(stack.pop()));
+                }else if(token.equals("cos")) {
+                    stack.push(Math.cos(stack.pop()));
+                }else if(token.equals("tan")) {
+                    stack.push(Math.tan(stack.pop()));
+                }else if(token.equals("log")) {
+                    stack.push(Math.log10(stack.pop()));
+                }else if(token.equals("ln")) {
+                    stack.push(Math.log(stack.pop()));
+                }else if(token.equals("√")) {
+                    stack.push(Math.sqrt(stack.pop()));
+                }else if(token.equals("³√")) {
+                    stack.push(Math.cbrt(stack.pop()));
+                }else if(token.equals("e^")){
+                    stack.push(Math.exp(stack.pop()));
+                }else if(token.equals("π")){
+                    stack.push(Math.PI);
+                }else if(token.equals("%")){
+                    stack.push(stack.pop() / 100);
                 }
             }
         }
@@ -409,4 +453,22 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
         return total;
     }
 
+    //might be better / cleaner route
+    public double calculateFunction(String function, double number){
+
+        if(function.equals("sin"))
+            return Math.sin(number);
+        else if(function.equals("cos"))
+            return Math.cos(number);
+        else if(function.equals("tan"))
+            return Math.tan(number);
+        else if(function.equals("log"))
+            return Math.log10(number);
+        else if(function.equals("ln"))
+            return Math.log(number);
+        else if(function.equals("√"))
+            return Math.sqrt(number);
+        else
+            return Math.cbrt(number);
+    }
 }
