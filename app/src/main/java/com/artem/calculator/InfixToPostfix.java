@@ -1,5 +1,6 @@
 package com.artem.calculator;
 
+import java.util.EmptyStackException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Stack;
@@ -31,7 +32,7 @@ public class InfixToPostfix {
         functions.add("^");
     }
 
-    public String convertToPostfix(){
+    public String convertToPostfix() throws EmptyStackException{
         Stack<String> stack = new Stack<>();
         StringBuilder postfix = new StringBuilder();
         String[] infixSplit = infix.split(" ");
@@ -48,6 +49,7 @@ public class InfixToPostfix {
             }else if(token.equals("(")){
                 stack.push(token);
             }else if(token.equals(")")){
+                //**cuberoot & sqrt causing problem ONLY IF PLUS OR MINUS. Empty stack exception. Happening on anything related to brackets and -/+. precedence problem?
                 while(!stack.peek().equals("("))
                     postfix.append(stack.pop() + " ");
 

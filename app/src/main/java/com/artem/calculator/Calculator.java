@@ -26,6 +26,7 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
     private boolean isNegative;
     private int negativeSignPos;
     private int numberOfBrackets;
+    private double total;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -130,14 +131,6 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
 
     @Override
     public void onClick(View view) {
-
-        //possibly not reset if a operation is pressed, instead do that operation to the findTotal
-        //if so probably move this to display numbers, then add conditions to the methods
-        if(outputDisplayed) {
-            clearText();
-            outputDisplayed = false;
-        }
-
         switch(view.getId()){
             case R.id.one:
                 displayNumber("1");
@@ -182,7 +175,7 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
                 displayOperation("/");
                 break;
             case R.id.clear:
-                clearText();;
+                clearText();
                 break;
             case R.id.delete:
                 deletePreviousValue();
@@ -247,10 +240,11 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
         }
     }
 
+    //Displays the pressed number, resets display if there is a total shown
     public void displayNumber(String numberToAdd){
         if(outputDisplayed) {
             clearText();
-            outputDisplayed = false;
+            resetTrackers();
         }
 
         if(numberSetLength == 0){
@@ -262,20 +256,22 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
         displayFixedInputText();
     }
 
+    //Trims any white space and displays the text
     public void displayFixedInputText(){
         String trimmedDisplayText = displayText.toString().replaceAll(" ", "");
         inputTextView.setText(trimmedDisplayText);
     }
 
-    //need to add findTotal support, if operation clicked then apply to findTotal
+    //Adds + - * / to display
     public void displayOperation(String operationToAdd){
-        resetTrackers();
+        useTotalForCalculation();
+        if(!outputDisplayed)
+            resetTrackers();
+
         String trimmedDisplayText = inputTextView.toString();
         String oneSpotBefore = trimmedDisplayText.charAt(trimmedDisplayText.length()-1)+"";
 
-        if(trimmedDisplayText.length() == 0)
-            return;
-        else if(operations.contains(oneSpotBefore))
+        if(trimmedDisplayText.length() == 0 || operations.contains(oneSpotBefore))
             return;
         else
             displayText.append(" " + operationToAdd + " ");
@@ -283,6 +279,57 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
         displayFixedInputText();
     }
 
+    //might need cleanup
+    //Checks for if a total is displayed, if it is then sets it up for an operation
+    public void useTotalForCalculation(){
+        if(outputDisplayed){
+            resetTrackers();
+            resetInput();
+            displayText.append(total + "");
+            numberSetLength = displayText.length();
+            numberOfBrackets = 0;
+            containsDecimal = true;
+            resetOutput();
+
+            if(displayText.charAt(0) == '-') {
+                isNegative = true;
+            }else{
+                isNegative = false;
+            }
+            displayFixedInputText();
+        }
+    }
+
+    //Clears all values
+    public void clearText(){
+        resetInput();
+        resetOutput();
+        outputDisplayed = false;
+        resetTrackers();
+        numberOfBrackets = 0;
+    }
+
+    //Clears any text displayed in output
+    public void resetOutput(){
+        outputText.setLength(0);
+        outputTextView.setText(outputText);
+        outputDisplayed = false;
+    }
+
+    //Clears any text displayed in input
+    public void resetInput(){
+        displayText.setLength(0);
+        inputTextView.setText(displayText);
+    }
+
+    //Deletes last token
+    public void deletePreviousValue(){
+        if(displayText.length() != 0)
+            displayText.deleteCharAt(displayText.length()-1);
+        displayFixedInputText();
+    }
+
+    //Resets all variables that keep track of numbers, if its negative, and if it contains a decimal
     public void resetTrackers(){
         numberSetLength = 0;
         containsDecimal = false;
@@ -291,24 +338,12 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
         startPositionOfNumberSet = 0;
     }
 
-    public void clearText(){
-        displayText.setLength(0);
-        outputTextView.setText("");
-        inputTextView.setText(displayText);
-        resetTrackers();
-        numberOfBrackets = 0;
-    }
-
-    public void deletePreviousValue(){
-        if(displayText.length() != 0)
-            displayText.deleteCharAt(displayText.length()-1);
-        displayFixedInputText();
-    }
-
-    //need to add findTotal support, if bracket clicked then apply to findTotal
+    //Formats brackets, if left bracket is after a number then it multiplies
     public void formatBrackets(String bracket){
+        useTotalForCalculation();
+
         if(bracket.equals("(")){
-            if(numberSetLength == 0)
+            if(numberSetLength == 0 && !multiplicationNeeded("π"))
                 displayText.append(" " + bracket + " ");
             else
                 displayText.append(" * " + bracket + " ");
@@ -321,8 +356,10 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
         displayFixedInputText();
     }
 
-    //need to add findTotal support, if modifier/symbol clicked then apply to findTotal
+    //Formats decimals, negative sign, percent, and pi
     public void formatModifiersAndSymbols(String text){
+        useTotalForCalculation();
+
         if(text.equals(".")){
             if(containsDecimal) {
                 return;
@@ -332,7 +369,9 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
                 displayText.append(".");
             }
             containsDecimal = true;
-        }else if(text.equals("-")){
+        }else if(text.equals("-") && !outputDisplayed){
+            //Slightly weird if total is shown, then operation pressed & if to many values are deleted.
+            // negative gets added infront of the total value instead of after the operation. gotta fix
             if(isNegative){
                 isNegative = false;
                 displayText.deleteCharAt(negativeSignPos);
@@ -343,8 +382,8 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
             }
         }else if(text.equals("%")){
             displayText.append(" " + text + " ");
-        }else if(text.equals("π")){
-            if(displayText.length() > 0 && multiplicationNeeded())
+        }else if(text.equals("π")){ //**Need to fix for using when theres a total******************************
+            if(displayText.length() > 0 && multiplicationNeeded("π"))
                 displayText.append(" * " + text + " ");
             else if(numberSetLength == 0)
                 displayText.append(" " + text + " ");
@@ -352,21 +391,24 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
         displayFixedInputText();
     }
 
-    public boolean multiplicationNeeded(){
+    //Checks for the previous value, if its pi then multiplication is required
+    public boolean multiplicationNeeded(String checkFor){
         String trimmedText = displayText.toString().replaceAll(" ", "");
 
         if (displayText.length() > 0){
             String oneSpotBefore = trimmedText.charAt(trimmedText.length()-1) + "";
-            return oneSpotBefore.equals("π");
+            return oneSpotBefore.equals(checkFor);
         }
         return false;
     }
 
-    //need to add findTotal support, if function clicked then apply to findTotal
+    //Formats all functions, ^, 1/x, sin cos tan, abs, sqrt, cubert, log, ln, e^
     public void formatFunctions(String token){
+        useTotalForCalculation();
+
         if(token.equals("^ 2")) {
             displayText.append(" " + token + " ");
-        }else if(token.equals("1 / x ")) {
+        }else if(token.equals("1 / x")) {
             if (numberSetLength == 0)
                 displayText.append(" 1 / ( ");
             else
@@ -384,7 +426,6 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
         displayFixedInputText();
     }
 
-    //need changing, allow total to be moved to display
     public void findTotal(){
         while(numberOfBrackets > 0) {
             displayText.append(" ) ");
@@ -393,20 +434,26 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
 
         InfixToPostfix convert = new InfixToPostfix(displayText.toString());
         String postfix = convert.convertToPostfix();
+
         try {
             outputDisplayed = true;
-            resetTrackers();//might not need
-            double total = calculate((postfix));
+            calculate((postfix));
             outputTextView.setText(total + "");
         }catch(EmptyStackException exception){
             outputTextView.setText("Invalid Format");
+            outputDisplayed = false;
+            resetTrackers();
         }
         //outputTextView.setText(postfix); //for testing
     }
 
-    //Needs refactoring
-    public double calculate(String postfix) throws EmptyStackException{
-        double total;
+    /*Calculates total, if its a number its pushed to the stack.
+      if its an operation it pushes 2 numbers off the stack and applies the operation and
+      pushes back to the stack.
+      Any other type pops one number off the stack and applies the number.
+      Calculations are in RADIANS
+     */
+    public void calculate(String postfix) throws EmptyStackException{
         Stack<Double> stack = new Stack<>();
 
         for (String token : postfix.split(" ")) {
@@ -418,26 +465,21 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
             try {
                 stack.push(Double.parseDouble(token));
             } catch (NumberFormatException error) {
-                if (token.equals("*")) {
+                if(operations.contains(token) || token.equals("^")){
                     secondNum = stack.pop();
                     firstNum = stack.pop();
-                    stack.push(firstNum * secondNum);
-                } else if (token.equals("/")) {
-                    secondNum = stack.pop();
-                    firstNum = stack.pop();
-                    stack.push(firstNum / secondNum);
-                } else if (token.equals("+")) {
-                    secondNum = stack.pop();
-                    firstNum = stack.pop();
-                    stack.push(firstNum + secondNum);
-                } else if (token.equals("−")) {
-                    secondNum = stack.pop();
-                    firstNum = stack.pop();
-                    stack.push(firstNum - secondNum);
-                } else if(token.equals("^")){
-                    secondNum = stack.pop();
-                    firstNum = stack.pop();
-                    stack.push(Math.pow(firstNum, secondNum));
+
+                    if (token.equals("*")) {
+                        stack.push(firstNum * secondNum);
+                    } else if (token.equals("/")) {
+                        stack.push(firstNum / secondNum);
+                    } else if (token.equals("+")) {
+                        stack.push(firstNum + secondNum);
+                    } else if (token.equals("−")) {
+                        stack.push(firstNum - secondNum);
+                    } else if(token.equals("^")){
+                        stack.push(Math.pow(firstNum, secondNum));
+                    }
                 }else if(token.equals("sin")){
                     stack.push(Math.sin(stack.pop()));
                 }else if(token.equals("cos")) {
@@ -462,25 +504,5 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
             }
         }
         total = stack.pop();
-        return total;
-    }
-
-    //might be better / cleaner route
-    public double calculateFunction(String function, double number){
-
-        if(function.equals("sin"))
-            return Math.sin(number);
-        else if(function.equals("cos"))
-            return Math.cos(number);
-        else if(function.equals("tan"))
-            return Math.tan(number);
-        else if(function.equals("log"))
-            return Math.log10(number);
-        else if(function.equals("ln"))
-            return Math.log(number);
-        else if(function.equals("√"))
-            return Math.sqrt(number);
-        else
-            return Math.cbrt(number);
     }
 }
