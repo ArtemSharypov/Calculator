@@ -13,10 +13,11 @@ import java.util.Stack;
 
 public class Calculator extends AppCompatActivity implements View.OnClickListener {
 
-    private TextView inputBox;
-    private TextView outputBox;
+    private TextView inputTextView;
+    private TextView outputTextView;
     private boolean outputDisplayed;
     private StringBuilder displayText;
+    private StringBuilder outputText;
     private Set<String> operations;
     private Set<String> functions;
     private boolean containsDecimal;
@@ -60,8 +61,8 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
         Button tan = (Button) findViewById(R.id.tan);
         Button cos = (Button) findViewById(R.id.cos);
         Button exponent = (Button) findViewById(R.id.exponent);
-        Button squareroot = (Button) findViewById(R.id.squareroot);
-        Button cuberoot = (Button) findViewById(R.id.cuberoot);
+        Button squareroot = (Button) findViewById(R.id.square_root);
+        Button cuberoot = (Button) findViewById(R.id.cube_root);
         Button log = (Button) findViewById(R.id.log);
         Button naturalLog = (Button) findViewById(R.id.natural_log);
         Button leftBracket = (Button) findViewById(R.id.left_bracket);
@@ -103,18 +104,19 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
         leftBracket.setOnClickListener(this);
         rightBracket.setOnClickListener(this);
 
-        inputBox = (TextView) findViewById(R.id.input);
-        outputBox = (TextView) findViewById(R.id.output);
-        displayText = new StringBuilder(inputBox.getText());
+        inputTextView = (TextView) findViewById(R.id.input);
+        outputTextView = (TextView) findViewById(R.id.output);
 
-        operations = new HashSet<String>();
+        displayText = new StringBuilder();
+        outputText = new StringBuilder();
+
+        operations = new HashSet<>();
         operations.add("+");
         operations.add("−");
         operations.add("*");
         operations.add("/");
 
-        //might not need
-        functions = new HashSet<String>();
+        functions = new HashSet<>();
         functions.add("sin");
         functions.add("cos");
         functions.add("tan");
@@ -123,13 +125,16 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
         functions.add("√");
         functions.add("³√");
         functions.add("^");
+        functions.add("e^");
     }
 
     @Override
     public void onClick(View view) {
 
+        //possibly not reset if a operation is pressed, instead do that operation to the findTotal
+        //if so probably move this to display numbers, then add conditions to the methods
         if(outputDisplayed) {
-            displayModifier("clear");
+            clearText();
             outputDisplayed = false;
         }
 
@@ -177,84 +182,81 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
                 displayOperation("/");
                 break;
             case R.id.clear:
-                displayModifier("clear");
+                clearText();;
                 break;
             case R.id.delete:
-                displayModifier("del");
-                break;
-            case R.id.negative:
-                displayModifier("-");
-                break;
-            case R.id.equal:
-                displayModifier("=");
-                break;
-            case R.id.decimal:
-                displayModifier(".");
+                deletePreviousValue();
                 break;
             case R.id.left_bracket:
-                displayModifier("(");
+                formatBrackets("(");
                 break;
             case R.id.right_bracket:
-                displayModifier(")");
+                formatBrackets(")");
                 break;
-            case R.id.absolute_value:
-                displayModifier("abs");
+            case R.id.negative:
+                formatModifiersAndSymbols("-");
                 break;
-            case R.id.eulers_number:
-                displaySymbol("e");
+            case R.id.decimal:
+                formatModifiersAndSymbols(".");
                 break;
             case R.id.pi:
-                displaySymbol("π");
-                break;
-            case R.id.sin:
-                displayFunction("sin");
-                break;
-            case R.id.cos:
-                displayFunction("cos");
-                break;
-            case R.id.tan:
-                displayFunction("tan");
-                break;
-            case R.id.log:
-                displayFunction("log");
-                break;
-            case R.id.natural_log:
-                displayFunction("ln");
-                break;
-            case R.id.squareroot:
-                displayFunction("√");
-                break;
-            case R.id.cuberoot:
-                displayFunction("³√");
-                break;
-            case R.id.exponent:
-                displayFunction("^");
-                break;
-            case R.id.power_two:
-                displayFunction("^ 2");
+                formatModifiersAndSymbols("π");
                 break;
             case R.id.percent:
-                //need to add
-                displayText.append(" % ");
-                displayFixedInputText();
+                formatModifiersAndSymbols("%");
+                break;
+            case R.id.absolute_value:
+                formatFunctions("abs");
+                break;
+            case R.id.eulers_number:
+                formatFunctions("e^");
+                break;
+            case R.id.sin:
+                formatFunctions("sin");
+                break;
+            case R.id.cos:
+                formatFunctions("cos");
+                break;
+            case R.id.tan:
+                formatFunctions("tan");
+                break;
+            case R.id.log:
+                formatFunctions("log");
+                break;
+            case R.id.natural_log:
+                formatFunctions("ln");
+                break;
+            case R.id.square_root:
+                formatFunctions("√");
+                break;
+            case R.id.cube_root:
+                formatFunctions("³√");
+                break;
+            case R.id.exponent:
+                formatFunctions("^");
+                break;
+            case R.id.power_two:
+                formatFunctions("^ 2");
                 break;
             case R.id.one_over:
-                //need to add
-                if(numberSetLength == 0)
-                    displayText.append(" 1 / ( ");
-                else
-                    displayText.append(" * 1 / ( ");
-                numberOfBrackets++;
-                resetTrackers();
-                displayFixedInputText();
+                formatFunctions("1 / x");
+                break;
+            case R.id.equal:
+                findTotal();
                 break;
         }
     }
 
     public void displayNumber(String numberToAdd){
+        if(outputDisplayed) {
+            clearText();
+            outputDisplayed = false;
+        }
+
         if(numberSetLength == 0){
             startPositionOfNumberSet = displayText.length();
         }
+
         displayText.append(numberToAdd);
         numberSetLength++;
         displayFixedInputText();
@@ -262,16 +264,18 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
 
     public void displayFixedInputText(){
         String trimmedDisplayText = displayText.toString().replaceAll(" ", "");
-        inputBox.setText(trimmedDisplayText);
+        inputTextView.setText(trimmedDisplayText);
     }
 
+    //need to add findTotal support, if operation clicked then apply to findTotal
     public void displayOperation(String operationToAdd){
         resetTrackers();
-        String trimmedDisplayText = displayText.toString().replaceAll(" ", ""); //need to fix/better solution
+        String trimmedDisplayText = inputTextView.toString();
+        String oneSpotBefore = trimmedDisplayText.charAt(trimmedDisplayText.length()-1)+"";
 
         if(trimmedDisplayText.length() == 0)
             return;
-        else if(operations.contains(trimmedDisplayText.charAt(trimmedDisplayText.length() - 1)+""))
+        else if(operations.contains(oneSpotBefore))
             return;
         else
             displayText.append(" " + operationToAdd + " ");
@@ -287,17 +291,48 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
         startPositionOfNumberSet = 0;
     }
 
-    //maybe split up somehow
-    public void displayModifier(String modifierToAdd){
-        if(modifierToAdd.equals(".")){
-            if(containsDecimal)
-                return;
-            else if(numberSetLength == 0)
-                displayText.append("0.");
+    public void clearText(){
+        displayText.setLength(0);
+        outputTextView.setText("");
+        inputTextView.setText(displayText);
+        resetTrackers();
+        numberOfBrackets = 0;
+    }
+
+    public void deletePreviousValue(){
+        if(displayText.length() != 0)
+            displayText.deleteCharAt(displayText.length()-1);
+        displayFixedInputText();
+    }
+
+    //need to add findTotal support, if bracket clicked then apply to findTotal
+    public void formatBrackets(String bracket){
+        if(bracket.equals("(")){
+            if(numberSetLength == 0)
+                displayText.append(" " + bracket + " ");
             else
+                displayText.append(" * " + bracket + " ");
+            numberOfBrackets++;
+        }else if(bracket.equals(")") && numberOfBrackets != 0){
+            displayText.append(" " + bracket + " ");
+            numberOfBrackets--;
+        }
+        resetTrackers();
+        displayFixedInputText();
+    }
+
+    //need to add findTotal support, if modifier/symbol clicked then apply to findTotal
+    public void formatModifiersAndSymbols(String text){
+        if(text.equals(".")){
+            if(containsDecimal) {
+                return;
+            }else if(numberSetLength == 0) {
+                displayText.append("0.");
+            }else {
                 displayText.append(".");
+            }
             containsDecimal = true;
-        }else if(modifierToAdd.equals("-")){
+        }else if(text.equals("-")){
             if(isNegative){
                 isNegative = false;
                 displayText.deleteCharAt(negativeSignPos);
@@ -306,73 +341,51 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
                 isNegative = true;
                 negativeSignPos = startPositionOfNumberSet;
             }
-        }else if(modifierToAdd.equals("del")){
-            if(displayText.length() != 0)
-                displayText.deleteCharAt(displayText.length()-1);
-        }else if(modifierToAdd.equals("clear")){
-            displayText.setLength(0);
-            outputBox.setText("");
-            resetTrackers();
-            numberOfBrackets = 0;
-        }else if(modifierToAdd.equals("=")){
-            equals();
-        }else if(modifierToAdd.equals("(")){
-            formatSymbolsBrackets(modifierToAdd);
-            numberOfBrackets++;
-            resetTrackers();
-        }else if(modifierToAdd.equals(")") && numberOfBrackets != 0){
-            displayText.append(" " + modifierToAdd + " ");
-            numberOfBrackets--;
-            resetTrackers();
-        }else if(modifierToAdd.equals("abs")){
-            formatFunctionsAndAbsolute(modifierToAdd);
-        }
-
-        displayFixedInputText();
-    }
-
-    public void displaySymbol(String symbolToAdd){
-        if(symbolToAdd.equals("π")){
-            formatSymbolsBrackets(symbolToAdd);
-        }else {//for eulers number. probably should be under functions
-            //formatFunctionsAndAbsolute("e ^");
-            if(numberSetLength == 0)
-                displayText.append("e^ ( ");
-            else
-                displayText.append(" * e^ ( ");
-            numberOfBrackets++;
+        }else if(text.equals("%")){
+            displayText.append(" " + text + " ");
+        }else if(text.equals("π")){
+            if(displayText.length() > 0 && multiplicationNeeded())
+                displayText.append(" * " + text + " ");
+            else if(numberSetLength == 0)
+                displayText.append(" " + text + " ");
         }
         displayFixedInputText();
     }
 
-    //need better name
-    public void formatSymbolsBrackets(String token){
-        if(numberSetLength == 0)
+    public boolean multiplicationNeeded(){
+        String trimmedText = displayText.toString().replaceAll(" ", "");
+
+        if (displayText.length() > 0){
+            String oneSpotBefore = trimmedText.charAt(trimmedText.length()-1) + "";
+            return oneSpotBefore.equals("π");
+        }
+        return false;
+    }
+
+    //need to add findTotal support, if function clicked then apply to findTotal
+    public void formatFunctions(String token){
+        if(token.equals("^ 2")) {
             displayText.append(" " + token + " ");
-        else
-            displayText.append(" * " + token + " ");
-    }
-
-    //need better name
-    public void formatFunctionsAndAbsolute(String function){
-        if(function.equals("^ 2")) {
-            displayText.append(" " + function + " ");
-        }else if(numberSetLength == 0 || function.equals("^")) {
-            displayText.append(" " + function + " ( ");
+        }else if(token.equals("1 / x ")) {
+            if (numberSetLength == 0)
+                displayText.append(" 1 / ( ");
+            else
+                displayText.append(" * 1 / ( ");
             numberOfBrackets++;
-        }else {
-            displayText.append(" * " + function + " ( ");
+        }else if(token.equals("abs") || functions.contains(token)) {
+            if (numberSetLength == 0 || token.equals("^")) {
+                displayText.append(" " + token + " ( ");
+            } else {
+                displayText.append(" * " + token + " ( ");
+            }
             numberOfBrackets++;
         }
         resetTrackers();
-    }
-
-    public void displayFunction(String functionToAdd){
-        formatFunctionsAndAbsolute(functionToAdd);
         displayFixedInputText();
     }
 
-    public void equals(){
+    //need changing, allow total to be moved to display
+    public void findTotal(){
         while(numberOfBrackets > 0) {
             displayText.append(" ) ");
             numberOfBrackets--;
@@ -380,22 +393,21 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
 
         InfixToPostfix convert = new InfixToPostfix(displayText.toString());
         String postfix = convert.convertToPostfix();
-
         try {
             outputDisplayed = true;
-            resetTrackers();
+            resetTrackers();//might not need
             double total = calculate((postfix));
-            outputBox.setText(total + "");
+            outputTextView.setText(total + "");
         }catch(EmptyStackException exception){
-            outputBox.setText("Invalid Format");
+            outputTextView.setText("Invalid Format");
         }
-
-        //outputBox.setText(postfix); //for testing
+        //outputTextView.setText(postfix); //for testing
     }
 
+    //Needs refactoring
     public double calculate(String postfix) throws EmptyStackException{
         double total;
-        Stack<Double> stack = new Stack<Double>();
+        Stack<Double> stack = new Stack<>();
 
         for (String token : postfix.split(" ")) {
             //if its a number push to the stack, if its an operator then pop two numbers off

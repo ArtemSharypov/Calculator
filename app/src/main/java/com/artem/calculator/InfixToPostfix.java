@@ -13,13 +13,13 @@ public class InfixToPostfix {
     public InfixToPostfix(String infix){
         this.infix = infix;
 
-        operations = new HashSet<String>();
+        operations = new HashSet<>();
         operations.add("+");
         operations.add("−");
         operations.add("*");
         operations.add("/");
 
-        functions = new HashSet<String>();
+        functions = new HashSet<>();
         functions.add("sin");
         functions.add("cos");
         functions.add("tan");
@@ -32,13 +32,13 @@ public class InfixToPostfix {
     }
 
     public String convertToPostfix(){
-        Stack<String> stack = new Stack<String>();
+        Stack<String> stack = new Stack<>();
         StringBuilder postfix = new StringBuilder();
         String[] infixSplit = infix.split(" ");
 
         //Uses Shunting Yard Algorithm
         //Adds any numbers & decimals to postfix, any matching bracket set(s) are removed
-        //Any operations are done in precedence
+        //Any operations / functions are done in precedence
         for(String token: infixSplit){
             if(operations.contains(token)){
                 while(!stack.isEmpty() && comparePrecedence(token, stack.peek()))
@@ -74,7 +74,7 @@ public class InfixToPostfix {
             return 2;
         else if(operation.equals("^"))
             return 3;
-        else //All functions have a precedence of 1 EXCEPT exponents
+        else // Addition / Subtraction / Functions excluding exponents
             return 1;
     }
 }
