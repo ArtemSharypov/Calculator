@@ -70,10 +70,11 @@ public class InfixToPostfix {
     }
 
     private int precedence(String operation){
-        if(operation.equals("*") || operation.equals("/"))
-            return 2;
-        else if(operation.equals("^"))
+
+        if(operation.equals("^") || operation.equals("%"))
             return 3;
+        else if(operation.equals("*") || operation.equals("/"))
+            return 2;
         else if(operation.equals("+") || operation.equals("−"))
             return 1;
         else //Any remaining functions, any that are within function Set or are not the above

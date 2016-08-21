@@ -16,15 +16,14 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
     private TextView inputTextView;
     private TextView outputTextView;
     private boolean outputDisplayed;
+    private boolean exceptionThrown;
     private StringBuilder displayText;
     private StringBuilder outputText;
     private Set<String> operations;
     private Set<String> functions;
+    private Set<String> numbers;
     private boolean containsDecimal;
-    private int numberSetLength;//**********
-    private int startPositionOfNumberSet;//******
-    private boolean isNegative; //need better way of handling / tracking
-    private int negativeSignPos; //need better way of tracking this
+    private int numberSetLength;
     private int numberOfBrackets;
     private double total;
 
@@ -127,6 +126,17 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
         functions.add("³√");
         functions.add("^");
         functions.add("e^");
+
+        numbers = new HashSet<>();
+        numbers.add("1");
+        numbers.add("2");
+        numbers.add("3");
+        numbers.add("4");
+        numbers.add("5");
+        numbers.add("6");
+        numbers.add("7");
+        numbers.add("8");
+        numbers.add("9");
     }
 
     @Override
@@ -240,21 +250,43 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
         }
     }
 
-    //***Need to add support for multiplying after a % sign *******************************
     //Displays the pressed number, resets display if there is a total shown
     public void displayNumber(String numberToAdd){
-        if(outputDisplayed) {
+        if(outputDisplayed)
             clearText();
-            resetTrackers();
-        }
 
-        if(numberSetLength == 0){
-            startPositionOfNumberSet = displayText.length();
-        }
+        if(multiplicationNeeded(numberToAdd))
+            displayText.append(" * ");
 
         displayText.append(numberToAdd);
         numberSetLength++;
         displayFixedInputText();
+    }
+
+    //True if: displayText is bigger than one, previous value is π, %, or a number set thats
+    //bigger than 0 and the tokenToAdd is NOT a number.
+    //False if there is a number set and the token to add is a number
+    public boolean multiplicationNeeded(String tokenToAdd){
+        if(displayText.length() > 0) {
+            if(tokenOneBefore().equals("π") || tokenOneBefore().equals("%")) {
+                return true;
+            }else if(numberSetLength > 0) {
+                if(!numbers.contains(tokenToAdd))
+                    return true;
+            }
+        }
+        return false;
+    }
+
+    //Finds the char / token at the end of the text
+    public String tokenOneBefore(){
+        String trimmedText = trimmedDisplayText();
+        return trimmedText.charAt(trimmedText.length()-1) + "";
+    }
+
+    //Returns displayText without any spaces
+    public String trimmedDisplayText(){
+        return displayText.toString().replaceAll(" ", "");
     }
 
     //Trims any white space and displays the text
@@ -263,17 +295,15 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
         inputTextView.setText(trimmedDisplayText);
     }
 
-    //*****need to fix how negative signs work with it *******
     //Adds + - * / to display
     public void displayOperation(String operationToAdd){
         useTotalForCalculation();
+
         if(!outputDisplayed)
             resetTrackers();
 
-        String trimmedDisplayText = inputTextView.toString();
-        String oneSpotBefore = trimmedDisplayText.charAt(trimmedDisplayText.length()-1)+"";
-
-        if(trimmedDisplayText.length() == 0 || operations.contains(oneSpotBefore))
+        //Adds the operation if the length isn't 0 or if the previous value isnt an operation
+        if(trimmedDisplayText().length() == 0 || operations.contains(tokenOneBefore()))
             return;
         else
             displayText.append(" " + operationToAdd + " ");
@@ -281,34 +311,31 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
         displayFixedInputText();
     }
 
-    //might need cleanup
     //Checks for if a total is displayed, if it is then sets it up for an operation
     public void useTotalForCalculation(){
         if(outputDisplayed){
-            resetTrackers();
             resetInput();
             displayText.append(total + "");
-            numberSetLength = displayText.length();
+            numberSetLength = trimmedDisplayText().length();
             numberOfBrackets = 0;
             containsDecimal = true;
             resetOutput();
-
-            if(displayText.charAt(0) == '-') {
-                isNegative = true;
-            }else{
-                isNegative = false;
-            }
             displayFixedInputText();
+        }else if(exceptionThrown){
+            clearText();
+            exceptionThrown = false;
         }
     }
 
-    //Clears all values
-    public void clearText(){
-        resetInput();
-        resetOutput();
-        outputDisplayed = false;
-        resetTrackers();
-        numberOfBrackets = 0;
+    public void resetTrackers(){
+        numberSetLength = 0;
+        containsDecimal = false;
+    }
+
+    //Clears any text displayed in input
+    public void resetInput(){
+        displayText.setLength(0);
+        inputTextView.setText(displayText);
     }
 
     //Clears any text displayed in output
@@ -318,36 +345,36 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
         outputDisplayed = false;
     }
 
-    //Clears any text displayed in input
-    public void resetInput(){
-        displayText.setLength(0);
-        inputTextView.setText(displayText);
+    //Clears all values
+    public void clearText(){
+        resetInput();
+        resetOutput();
+        resetTrackers();
+        outputDisplayed = false;
+        numberOfBrackets = 0;
     }
 
     //Deletes last token
-    //need to add conditions for negative signs
     public void deletePreviousValue(){
-        int textLength = displayText.length() - 1;
+        if(exceptionThrown || outputDisplayed)
+            clearText();
 
         if(displayText.length() != 0) {
-            if(displayText.charAt(textLength) == '(')
+            if(tokenOneBefore().equals("("))
                 numberOfBrackets--;
-            else if(displayText.charAt(textLength) == ')')
+            else if(tokenOneBefore().equals(")"))
                 numberOfBrackets++;
-            else if(displayText.charAt(textLength) == '.')
+            else if(tokenOneBefore().equals("."))
                 containsDecimal = false;
-            displayText.deleteCharAt(textLength);
+
+            //Deletes a token 2 spots over if its after an operation with extra space, else
+            //it deletes the one at the very end
+            if(tokenOneBefore().equals(" "))
+                displayText.deleteCharAt(displayText.length() - 2);
+            else
+                displayText.deleteCharAt(displayText.length() - 1);
         }
         displayFixedInputText();
-    }
-
-    //Resets all variables that keep track of numbers, if its negative, and if it contains a decimal
-    public void resetTrackers(){
-        numberSetLength = 0;
-        containsDecimal = false;
-        isNegative = false;
-        negativeSignPos = 0;
-        startPositionOfNumberSet = 0;
     }
 
     //Formats brackets
@@ -355,7 +382,7 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
         useTotalForCalculation();
 
         if(bracket.equals("(")){
-            if(numberSetLength == 0 && !multiplicationNeeded("π"))
+            if(numberSetLength == 0 && !multiplicationNeeded(bracket))
                 displayText.append(" " + bracket + " ");
             else
                 displayText.append(" * " + bracket + " ");
@@ -382,36 +409,16 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
             }
             containsDecimal = true;
         }else if(text.equals("-") && !outputDisplayed){
-            //Slightly weird if total is shown, then operation pressed & if to many values are deleted.
-            // negative gets added infront of the total value instead of after the operation. gotta fix
-            if(isNegative){
-                isNegative = false;
-                displayText.deleteCharAt(negativeSignPos);
-            }else{ //Add a negative sign infront of the numbers
-                displayText.insert(startPositionOfNumberSet, "-");
-                isNegative = true;
-                negativeSignPos = startPositionOfNumberSet;
-            }
+            displayText.append("-");
         }else if(text.equals("%")){
             displayText.append(" " + text + " ");
-        }else if(text.equals("π")){ //**Need to fix for using when theres a total******************************
-            if(displayText.length() > 0 && multiplicationNeeded("π"))
+        }else if(text.equals("π")){
+            if(multiplicationNeeded(text))
                 displayText.append(" * " + text + " ");
             else if(numberSetLength == 0)
                 displayText.append(" " + text + " ");
         }
         displayFixedInputText();
-    }
-
-    //Checks for the previous value, if its pi then multiplication is required
-    public boolean multiplicationNeeded(String checkFor){
-        String trimmedText = displayText.toString().replaceAll(" ", "");
-
-        if (displayText.length() > 0 && checkFor.equals("π")){
-            String oneSpotBefore = trimmedText.charAt(trimmedText.length()-1) + "";
-            return oneSpotBefore.equals(checkFor);
-        }
-        return false;
     }
 
     //Formats all functions, ^, 1/x, sin cos tan, abs, sqrt, cubert, log, ln, e^
@@ -448,15 +455,14 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
         String postfix = convert.convertToPostfix();
 
         try {
-            outputDisplayed = true;
             calculate((postfix));
             outputTextView.setText(total + "");
+            outputDisplayed = true;
         }catch(EmptyStackException exception){
             outputTextView.setText("Invalid Format");
-            outputDisplayed = false;
             resetTrackers();
+            exceptionThrown = true;
         }
-        //outputTextView.setText(postfix); //for testing
     }
 
     /*Calculates total, if its a number its pushed to the stack.
@@ -468,9 +474,10 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
     public void calculate(String postfix) throws EmptyStackException{
         Stack<Double> stack = new Stack<>();
 
+        //If its a number it pushes to the stack, if its an operator then it pops two numbers off
+        //the stack (One number if its a function) and applies the operation and then
+        //pushes it back to the stack
         for (String token : postfix.split(" ")) {
-            //if its a number push to the stack, if its an operator then pop two numbers off
-            //apply the operation and then push to stack again
             double firstNum;
             double secondNum;
 
