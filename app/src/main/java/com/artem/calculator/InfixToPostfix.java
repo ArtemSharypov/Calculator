@@ -49,10 +49,8 @@ public class InfixToPostfix {
             }else if(token.equals("(")){
                 stack.push(token);
             }else if(token.equals(")")){
-                //**cuberoot & sqrt causing problem ONLY IF PLUS OR MINUS. Empty stack exception. Happening on anything related to brackets and -/+. precedence problem?
                 while(!stack.peek().equals("("))
                     postfix.append(stack.pop() + " ");
-
                 stack.pop(); //pops the "(" off the stack
             }else if(functions.contains(token)){
                 stack.push(token);
@@ -76,7 +74,9 @@ public class InfixToPostfix {
             return 2;
         else if(operation.equals("^"))
             return 3;
-        else // Addition / Subtraction / Functions excluding exponents
+        else if(operation.equals("+") || operation.equals("−"))
             return 1;
+        else //Any remaining functions, any that are within function Set or are not the above
+            return 0;
     }
 }

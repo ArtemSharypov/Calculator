@@ -21,10 +21,10 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
     private Set<String> operations;
     private Set<String> functions;
     private boolean containsDecimal;
-    private int numberSetLength;
-    private int startPositionOfNumberSet;
-    private boolean isNegative;
-    private int negativeSignPos;
+    private int numberSetLength;//**********
+    private int startPositionOfNumberSet;//******
+    private boolean isNegative; //need better way of handling / tracking
+    private int negativeSignPos; //need better way of tracking this
     private int numberOfBrackets;
     private double total;
 
@@ -240,6 +240,7 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
         }
     }
 
+    //***Need to add support for multiplying after a % sign *******************************
     //Displays the pressed number, resets display if there is a total shown
     public void displayNumber(String numberToAdd){
         if(outputDisplayed) {
@@ -262,6 +263,7 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
         inputTextView.setText(trimmedDisplayText);
     }
 
+    //*****need to fix how negative signs work with it *******
     //Adds + - * / to display
     public void displayOperation(String operationToAdd){
         useTotalForCalculation();
@@ -323,9 +325,19 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
     }
 
     //Deletes last token
+    //need to add conditions for negative signs
     public void deletePreviousValue(){
-        if(displayText.length() != 0)
-            displayText.deleteCharAt(displayText.length()-1);
+        int textLength = displayText.length() - 1;
+
+        if(displayText.length() != 0) {
+            if(displayText.charAt(textLength) == '(')
+                numberOfBrackets--;
+            else if(displayText.charAt(textLength) == ')')
+                numberOfBrackets++;
+            else if(displayText.charAt(textLength) == '.')
+                containsDecimal = false;
+            displayText.deleteCharAt(textLength);
+        }
         displayFixedInputText();
     }
 
@@ -338,7 +350,7 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
         startPositionOfNumberSet = 0;
     }
 
-    //Formats brackets, if left bracket is after a number then it multiplies
+    //Formats brackets
     public void formatBrackets(String bracket){
         useTotalForCalculation();
 
@@ -395,7 +407,7 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
     public boolean multiplicationNeeded(String checkFor){
         String trimmedText = displayText.toString().replaceAll(" ", "");
 
-        if (displayText.length() > 0){
+        if (displayText.length() > 0 && checkFor.equals("π")){
             String oneSpotBefore = trimmedText.charAt(trimmedText.length()-1) + "";
             return oneSpotBefore.equals(checkFor);
         }
@@ -428,7 +440,7 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
 
     public void findTotal(){
         while(numberOfBrackets > 0) {
-            displayText.append(" ) ");
+            displayText.append(" )");
             numberOfBrackets--;
         }
 
