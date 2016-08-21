@@ -422,6 +422,7 @@ public class Calculator extends AppCompatActivity implements View.OnClickListene
     }
 
     //Formats all functions, ^, 1/x, sin cos tan, abs, sqrt, cubert, log, ln, e^
+    //Multiplies if the token before it has a number value
     public void formatFunctions(String token){
         useTotalForCalculation();
 
