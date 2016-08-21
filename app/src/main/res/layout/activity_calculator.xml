@@ -71,7 +71,7 @@
                 android:layout_weight="1"
                 android:background="#2196f3"
                 android:layout_margin="2dp"
-                android:text="e" />
+                android:text="eⁿ" />
 
             <Button
                 style="?android:attr/buttonStyleSmall"
